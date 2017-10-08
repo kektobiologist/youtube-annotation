@@ -1,0 +1,32 @@
+{
+  "manifest_version": 2,
+  "name": "My Cool Extension",
+  "version": "0.1",
+  "permissions": [
+    "activeTab", "tabs"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*", "http://www.youtube.com/*", "https://en.wikipedia.org/*"],
+      "js": [
+        "jquery-3.2.1.min.js", 
+        "d3.v4.min.js", 
+        "node_modules/d3-timelines/dist/d3-timelines.js",
+        "FileSaver.min.js",
+        // "node_modules/d3-tip/d3-tip.min.js",
+        // "node_modules/d3-timeline/dist/timeline.js", 
+        // "node_modules/d3-timeline-chart/js/timeline-chart.js", 
+        "content.js"
+      ]
+    }
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "browser_action": {
+    // "default_icon": "icon.png"
+  },
+  "web_accessible_resources": [
+    "data.tsv"
+  ]
+}
