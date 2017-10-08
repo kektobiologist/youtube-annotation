@@ -34,31 +34,66 @@ chrome.runtime.onMessage.addListener(
 //   console.log('done')
 // })
 
-intervals = []
+intervals = {
+  arnab: [],
+  for: [],
+  against: []
+}
  $(function () {
     started = false
     starttime = 0
-    $(document).keydown(function(event) {
-      if (event.which == 65 && started == false) {
-        console.log('started')
-        started = true
-        video = document.getElementsByClassName('video-stream')[0];
-        // console.log(video.currentTime);
-        starttime = video.currentTime;
-      }
-    })
 
-    $(document).keyup(function(event) {
-      if (event.which == 65 && started == true) {
-        started = false
-        video = document.getElementsByClassName('video-stream')[0];
-        // console.log(video.currentTime);
-        endtime = video.currentTime;
-        console.log("start = " + starttime + ", end = " + endtime)
-        intervals.push({start: starttime, end: endtime})
-        console.log(intervals)
-      }
-    })
+    function enableKeypressRecord(key, arrayName) {
+      var started = false
+      var startedtime = 0
+      $(document).keydown(function(event) {
+        if (event.which == key && started == false) {
+          console.log('started')
+          started = true
+          video = document.getElementsByClassName('video-stream')[0];
+          // console.log(video.currentTime);
+          starttime = video.currentTime;
+        }
+      })
+
+      $(document).keyup(function(event) {
+        if (event.which == key && started == true) {
+          started = false
+          video = document.getElementsByClassName('video-stream')[0];
+          // console.log(video.currentTime);
+          endtime = video.currentTime;
+          console.log("start = " + starttime + ", end = " + endtime)
+          intervals[arrayName].push({start: starttime, end: endtime})
+          console.log(intervals)
+        }
+      })
+    }
+
+    enableKeypressRecord(65, 'arnab')
+    enableKeypressRecord(83, 'for')
+    enableKeypressRecord(68, 'against')
+
+    // $(document).keydown(function(event) {
+    //   if (event.which == 65 && started == false) {
+    //     console.log('started')
+    //     started = true
+    //     video = document.getElementsByClassName('video-stream')[0];
+    //     // console.log(video.currentTime);
+    //     starttime = video.currentTime;
+    //   }
+    // })
+
+    // $(document).keyup(function(event) {
+    //   if (event.which == 65 && started == true) {
+    //     started = false
+    //     video = document.getElementsByClassName('video-stream')[0];
+    //     // console.log(video.currentTime);
+    //     endtime = video.currentTime;
+    //     console.log("start = " + starttime + ", end = " + endtime)
+    //     intervals.push({start: starttime, end: endtime})
+    //     console.log(intervals)
+    //   }
+    // })
 
       // alert("Window Loaded");
       // $('#guide-icon').prepend('<div><form id="saveform"><input type="submit" value="Save"></input></form></div>')
