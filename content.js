@@ -1,145 +1,230 @@
 // content.js
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    if( request.message === "clicked_browser_action" ) {
-      // var firstHref = $("a[href^='http']").eq(0).attr("href");
 
-      // console.log(firstHref);
-      video = document.getElementsByClassName('video-stream')[0];
-      // console.log(video);
-      console.log(video.currentTime);
-       $('#info-contents').append('<div><p> HELLO </p></div>')
-        console.log('here')  
-    }
-  }
-);
-
-
-
-// video = document.getElementBy('player');
-// var btn = document.createElement("div")
-// var t = document.createTextNode("CLICK ME");
-// btn.appendChild(t);
-// //Appending to DOM 
-// document.body.appendChild(btn);
-// $('<div><p> HELLO </p></div>').insertAfter( "#container")
-// $('body').prepend('<h1>Testing!</h1>');
-// $(document).ready(function() {
-//   $('#info-contents').append('<div><p> HELLO </p></div>')
-//   // console.log('here')  
-// })
-
-// $(window).load(function() {
-//   document.write('Hello world')
-//   console.log('done')
-// })
-
-intervals = {
+jsonObj = {
   arnab: [],
   for: [],
-  against: []
+  against: [],
 }
- $(function () {
-    started = false
-    starttime = 0
 
-    function enableKeypressRecord(key, arrayName) {
-      var started = false
-      var startedtime = 0
-      $(document).keydown(function(event) {
-        if (event.which == key && started == false) {
-          console.log('started')
-          started = true
-          video = document.getElementsByClassName('video-stream')[0];
-          // console.log(video.currentTime);
-          starttime = video.currentTime;
-        }
-      })
+// The main function that takes a set of intervals, merges
+  // overlapping intervals and prints the result
+function mergeIntervals(intervals)
+{
+  // Test if the given set has at least one interval
+  if (intervals.length <= 0)
+    return intervals;
 
-      $(document).keyup(function(event) {
-        if (event.which == key && started == true) {
-          started = false
-          video = document.getElementsByClassName('video-stream')[0];
-          // console.log(video.currentTime);
-          endtime = video.currentTime;
-          console.log("start = " + starttime + ", end = " + endtime)
-          intervals[arrayName].push({start: starttime, end: endtime})
-          console.log(intervals)
-        }
-      })
-    }
+  // Create an empty stack of intervals
+  var stack = [], last;
 
-    enableKeypressRecord(65, 'arnab')
-    enableKeypressRecord(83, 'for')
-    enableKeypressRecord(68, 'against')
+  // sort the intervals based on start time
+  intervals.sort(function(a,b) {
+    return a['start'] - b['start'];
+  });
 
-    // $(document).keydown(function(event) {
-    //   if (event.which == 65 && started == false) {
-    //     console.log('started')
-    //     started = true
-    //     video = document.getElementsByClassName('video-stream')[0];
-    //     // console.log(video.currentTime);
-    //     starttime = video.currentTime;
-    //   }
-    // })
+  // console.log(intervals);
 
-    // $(document).keyup(function(event) {
-    //   if (event.which == 65 && started == true) {
-    //     started = false
-    //     video = document.getElementsByClassName('video-stream')[0];
-    //     // console.log(video.currentTime);
-    //     endtime = video.currentTime;
-    //     console.log("start = " + starttime + ", end = " + endtime)
-    //     intervals.push({start: starttime, end: endtime})
-    //     console.log(intervals)
-    //   }
-    // })
+  // push the first interval to stack
+  stack.push(intervals[0]);
 
-      // alert("Window Loaded");
-      // $('#guide-icon').prepend('<div><form id="saveform"><input type="submit" value="Save"></input></form></div>')
-      $('<div><form id="saveform"><input type="submit" value="Save"></input></form></div>').insertBefore('ytd-topbar-logo-renderer')
-      $("#saveform").submit(function(event) {
-        event.preventDefault()
-        console.log("saving")
-        var blob = new Blob([JSON.stringify(intervals)], {type: "text/plain;charset=utf-8"});
-        saveAs(blob, document.title + '.json');
-      })
-        // console.log('here') 
-        // console.log($('#chart'))
-       
-        // $('*').off('keyup keydown keypress keypressed');
-        // $(document).on('keypress', function(e) {
-        //   console.log('key pressed')
-        //   e.preventDefault()
-    //     // })
-    //    var testData = [
-    // {label: "person a", times: [
-    //     {"starting_time": 1355752800000, "ending_time": 1355759900000},
-    //     {"starting_time": 1355767900000, "ending_time": 1355774400000}]},
-    // {label: "person b", times: [
-    //     {"starting_time": 1355759910000, "ending_time": 1355761900000}]},
-    // {label: "person c", times: [
-    //     {"starting_time": 1355761910000, "ending_time": 1355763910000}]}
-    // ];
+  // Start from the next interval and merge if necessary
+  for (var i = 1, len = intervals.length ; i < len; i++ ) {
+      // get interval from last item
+      last = stack[stack.length - 1];
 
-
-    // var testData2 = [
-    // {label: "person a", times: [
-    //     {"starting_time": 1355752800000, "ending_time": 1355759900000},
-    //     {"starting_time": 1355767900000, "ending_time": 1355774400000}]}
-    // ];
-    // var chart = d3.timelines();
-    // console.log(chart)
-    // var svg = d3.select("#chart").append("svg").attr("width", 500)
-    //     .datum(testData).call(chart);
-
-    //  d3.select('body').on('keydown', function() {
-    //   console.log('here')
-    //     svg.data(testData2)
-    //   })
-
-    // const element = document.getElementById('chart');
-    // console.log(element)
-
+      // if current interval is not overlapping with stack top,
+      // push it to the stack
+      if (last['end'] <= intervals[i]['start']) {
+          stack.push( intervals[i] );
+      }
     
- });
+      // Otherwise update the ending time of top if ending of current 
+      // interval is more
+      else if (last['end'] < intervals[i]['end']) {
+          last['end'] = intervals[i]['end'];     
+                      
+          stack.pop();
+          stack.push(last);
+      }
+  }
+
+  // console.log(stack);
+
+  return stack;
+}
+
+function videoElement() {
+  return document.getElementsByClassName('video-stream')[0];
+}
+
+function initKeyPress() {
+  function enableKeypressRecord(key, arrayName) {
+    var started = false
+    var starttime = 0
+    $(document).keydown(function(event) {
+      if (event.which == key && started == false) {
+        // console.log('started')
+        started = true
+        starttime = videoElement().currentTime;
+      }
+    })
+
+    $(document).keyup(function(event) {
+      if (event.which == key && started == true) {
+        started = false
+        endtime = videoElement().currentTime;
+        console.log(arrayName + ": start = " + starttime + ", end = " + endtime + ", duration = " + (endtime - starttime))
+        jsonObj[arrayName].push({start: starttime, end: endtime})
+        // trigger
+        $(document).trigger('jsonObj-changed')
+        console.log(jsonObj)
+      }
+    })
+  }
+
+  enableKeypressRecord(65, 'arnab') // a
+  enableKeypressRecord(83, 'for') // s
+  enableKeypressRecord(68, 'against') // d
+}
+
+// return true / false
+// Detect [new version UI(material design)] OR [old version UI]
+function new_material_design_version(){
+  var old_title_element = document.getElementById('watch7-headline');
+  if(old_title_element){
+    return false;
+  } else {
+    return true;
+  }
+}
+
+// call init only when DOM is completely ready
+function checkReady() {
+  if(new_material_design_version()){
+    var material_checkExist = setInterval(function() {
+      if (document.querySelectorAll('.title.style-scope.ytd-video-primary-info-renderer').length) {
+        init();
+        clearInterval(material_checkExist);
+      }
+    }, 330);
+  } else {
+    var checkExist = setInterval(function() {
+      if ($('#watch-headline-title').length && $('#saveform').length === 0) {
+        init();
+        clearInterval(checkExist);
+      }
+    }, 330);
+  }
+}
+
+var html = [
+"<div id='savediv'>",
+"  <input type='submit' id='savebutton' value='Save'/>",
+"  <input type='file' value='Load JSON'/>",
+"  <div id='svgdiv'></div>",
+"</div>"
+].join('\n')
+
+function drawTimelineVivek(data) {
+  width = $('#svgdiv').width()
+  height = 10
+  var svg = d3.select("#svgdiv").append("svg").attr("width", width).attr("height", height*3);
+  if (!data['duration']) {
+    // set duration by current video duration
+    data['duration'] = videoElement().duration
+  }
+  var drawTimeline = (data, scale, arrayName, color, startY) => {
+    // make a group with arrayName id
+    svg.append('g').attr('id', arrayName)
+    var update = (data) => {
+      elms = svg.select('#' + arrayName).selectAll('rect')
+                .data(data[arrayName])
+
+      // exit
+      elms.exit().remove()
+
+      // enter and update
+      elms.enter()
+        .append('rect')
+        .attr('y', startY)
+        .attr('height', height)
+        .attr('fill', color)
+        .attr('opacity', 0.5)
+        .merge(elms)
+        .attr('x', d => scale(d['start']))
+        .attr('width', d => scale(d['end'] - d['start']))
+    }
+    update(data)
+    return update
+  }
+  scale = d3.scaleLinear()
+    .domain([0, data['duration']])
+    .range([0, width])
+  updateFuncs = [
+    drawTimeline(data, scale, 'arnab', '#f71d49', 0),
+    drawTimeline(data, scale, 'for', '#27ea5f', height),
+    drawTimeline(data, scale, 'against', '#4b3ffc', height*2)
+  ]
+  var update = (data) => {
+    updateFuncs.forEach(x => x(data))
+  }
+
+  posLine = svg.append('rect').data([0]).attr('x', d => d).attr('width', 2).attr('y', 0).attr('height', height*3).attr('fill', '#000000')
+  window.setInterval(() => {
+    newPos = videoElement().currentTime
+    posLine.transition().duration(500).attr('x', d => scale(newPos))
+  }, 1000)
+
+  return update
+}
+
+// init UI
+function init() {
+  console.log("init ran")
+  var title_element = document.querySelectorAll('.title.style-scope.ytd-video-primary-info-renderer');
+  if (title_element) {
+    $(title_element[0]).before(html);
+    // save logic; maybe add save as option?
+    $("#savebutton").on('click', function(event) {
+      event.preventDefault()
+      console.log("saving")
+      jsonObj['duration'] = videoElement().duration
+      var blob = new Blob([JSON.stringify(jsonObj)], {type: "text/plain;charset=utf-8"});
+      saveAs(blob, document.title + '.json');
+    })
+    // init duration
+    jsonObj['duration'] = videoElement().duration
+    // draw stuff
+    updateDrawing = drawTimelineVivek(jsonObj)
+    // fix intervals while updating
+    update = () => {
+      // mergeIntervals on jsonObj
+      ['arnab', 'for', 'against'].forEach(e => {jsonObj[e] = mergeIntervals(jsonObj[e])})
+      updateDrawing(jsonObj)
+    }
+    // update on file load
+    $('input[type=file]').on('change', (e) => {
+      e.preventDefault()
+      var file = document.querySelector('input[type=file]').files[0];
+      var reader = new FileReader();
+      reader.onload = (e) => {
+        lines = e.target.result;
+        jsonObj = JSON.parse(lines);
+        update()
+      }
+      if (file) {
+        reader.readAsText(file)
+      }
+    })
+    // update on data change
+    $(document).on('jsonObj-changed', () => {
+      update()
+    })
+  }
+}
+
+$(function() {
+  console.log("plugin ran.")
+  checkReady()
+  initKeyPress()
+})

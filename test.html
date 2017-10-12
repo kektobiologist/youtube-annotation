@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Testing d3</title>
+  <script src="jquery-3.2.1.min.js"></script>
+  <script src="d3.v4.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      svg = d3.select("#d3svg").append('svg').attr('width', 500).attr('height', 500)
+      circles1 = svg.append('g').selectAll('circle')
+      circles2 = svg.append('g').attr('id', 'second').selectAll('circle')
+
+      circles1 = circles1.data([3]).enter().append('circle').merge(circles1).attr('r', d => d).attr('cx', 20)
+      circles2 = circles2.data([20]).enter().append('circle').merge(circles2).attr('r', d => d).attr('cx', 100)
+
+      circles2 = svg.select('#second').selectAll('circle')
+      console.log(circles2)
+      circles = circles2.data([10, 6, 4])
+
+      // exit
+      circles.exit().remove()
+
+      // enter and update
+      circles.enter().append('circle')
+        .merge(circles).attr('r', d => d).attr('cx', d => 100 + 3*d)
+
+      // circles2.data([10, 6, 4]).enter().append('circle').merge(circles2).attr('r', d => d).attr('cx', d => 100 + 3*d)
+    })
+  </script>
+</head>
+<body>
+  <div id="d3svg"></div>
+</body>
+</html>

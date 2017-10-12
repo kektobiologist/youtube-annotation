@@ -17,7 +17,8 @@
         // "node_modules/d3-timeline/dist/timeline.js", 
         // "node_modules/d3-timeline-chart/js/timeline-chart.js", 
         "content.js"
-      ]
+      ],
+      "run_at": "document_start"
     }
   ],
   "background": {
@@ -27,6 +28,8 @@
     // "default_icon": "icon.png"
   },
   "web_accessible_resources": [
-    "data.tsv"
+    "data.tsv",
+    "arnab.json",
+    "hafiz-full.json"
   ]
 }
